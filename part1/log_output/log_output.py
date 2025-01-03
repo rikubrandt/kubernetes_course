@@ -9,7 +9,7 @@ def gen_random_and_output():
     while True:
         current_datetime = datetime.datetime.now()
 
-        print(str(current_datetime) + " "+ random_string)
+        print(str(current_datetime) + " "+ random_string, flush=True)
         time.sleep(5)
 
 gen_random_and_output()
