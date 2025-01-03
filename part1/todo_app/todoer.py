@@ -4,9 +4,20 @@ import os
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET"])
-def health_check():
-    return "Server is running!", 200
+@app.route("/")
+def home():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>TODO</title>
+    </head>
+    <body>
+        <h1>Welcome to the TODOTODO todo App!</h1>
+        <p>Kubernetes is fun!</p>
+    </body>
+    </html>
+    """
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
