@@ -20,7 +20,7 @@ spec:
             claimName: shared-pvc
       containers:
       - name: todo-app
-        image: macrichard/todo-app:3.2
+        image: macrichard/todo-app:4.0
         volumeMounts:
         - name: shared-image
           mountPath: /shared
