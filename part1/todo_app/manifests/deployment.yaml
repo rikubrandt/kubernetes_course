@@ -14,9 +14,15 @@ spec:
       labels:
         app: todo-app
     spec:
+      volumes:
+        - name: shared-image
+          persistentVolumeClaim:
+            claimName: shared-pvc
       containers:
       - name: todo-app
-        image: macrichard/todo-app:1.2
-        env:
-        - name: PORT
-          value: "5000"
+        image: macrichard/todo-app:3.2
+        volumeMounts:
+        - name: shared-image
+          mountPath: /shared
+        ports:
+        - containerPort: 5000
