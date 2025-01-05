@@ -1,26 +1,25 @@
-import time
-import random
-from datetime import datetime
-import string
+import os
+import hashlib
 from flask import Flask, jsonify
+from datetime import datetime
 
 app = Flask(__name__)
-
-random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-current_timestamp = datetime.now()
+INPUT_FILE = "/shared/ping_count.txt"
 
 @app.route("/")
 def home():
-    return "Log Output APP."
+    try:
+        with open(INPUT_FILE, "r") as file:
+            ping_count = file.read().strip()
+    except FileNotFoundError:
+        ping_count = "0"
 
-@app.route("/status")
-def status():
-    return jsonify({
-        "timestamp": current_timestamp,
-        "random_string": random_string
-    })
+    timestamp = datetime.utcnow().isoformat()
+    hashed_timestamp = hashlib.sha256(timestamp.encode()).hexdigest()
+    return f"{timestamp}: {hashed_timestamp}. Ping / Pongs: {ping_count}"
 
 if __name__ == "__main__":
-    print(f"Server started with random string: {random_string}")
-    app.run(host="0.0.0.0", port=5000)
-
+    port = int(os.getenv("PORT", 5000))
+    os.makedirs("/shared", exist_ok=True)
+    print("Log Output Application started")
+    app.run(host="0.0.0.0", port=port)

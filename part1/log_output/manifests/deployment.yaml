@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: log-output
-  labels:
-    app: log-output
 spec:
   replicas: 1
   selector:
@@ -14,8 +12,15 @@ spec:
       labels:
         app: log-output
     spec:
+      volumes:
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: shared-pvc
       containers:
-        - name: log-output
-          image: macrichard/log-output:2.3
-          ports:
-          - containerPort: 5000
+      - name: log-output
+        image: macrichard/log-output:3.0
+        volumeMounts:
+        - name: shared-data
+          mountPath: /shared
+        ports:
+        - containerPort: 5000
