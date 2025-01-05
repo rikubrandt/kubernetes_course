@@ -1,7 +1,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: log-output-ingress
+  name: shared-ingress
+  annotations:
+    kubernetes.io/ingress.className: traefik
 spec:
   rules:
   - http:
@@ -11,5 +13,12 @@ spec:
         backend:
           service:
             name: log-output-svc
+            port:
+              number: 80
+      - path: /pingpong
+        pathType: Prefix
+        backend:
+          service:
+            name: ping-pong-svc
             port:
               number: 80
