@@ -20,9 +20,14 @@ spec:
             claimName: shared-pvc
       containers:
       - name: todo-app
-        image: macrichard/todo-app:4.0
+        image: macrichard/todo-app:5.3
+        ports:
+        - containerPort: 5000
         volumeMounts:
         - name: shared-image
           mountPath: /shared
-        ports:
-        - containerPort: 5000
+        env:
+        - name: PORT
+          value: "5000"
+        - name: "TODO_BACKEND_URL"
+          value: "http://todo-backend-svc:5000"

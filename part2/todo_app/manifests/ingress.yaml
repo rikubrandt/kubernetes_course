@@ -1,24 +1,24 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: shared-ingress
+  name: project-ingress
   annotations:
     kubernetes.io/ingress.class: traefik
 spec:
   rules:
   - http:
       paths:
+      - path: /todos
+        pathType: Prefix
+        backend:
+          service:
+            name: todo-backend-svc
+            port:
+              number: 5000
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: todo-app
-            port:
-              number: 80
-      - path: /log
-        pathType: Prefix
-        backend:
-          service:
-            name: log-output
+            name: todo-app-svc
             port:
               number: 80
