@@ -7,10 +7,16 @@ from datetime import datetime
 app = Flask(__name__)
 
 PINGPONG_URL = os.getenv("PINGPONG_URL", "http://ping-pong-svc:5000/count")
+message_env = os.getenv("MESSAGE")
 
 @app.route("/")
 def home():
     """Fetch the pong count from Ping-Pong Application and display the log output."""
+    try:
+        with open("/config/information.txt", "r") as file:
+            file_content = file.read().strip()
+    except FileNotFoundError:
+        file_content = "No file content found"
     try:
         response = requests.get(PINGPONG_URL, timeout=2)
         response.raise_for_status()
@@ -22,7 +28,7 @@ def home():
     timestamp = datetime.utcnow().isoformat()
     hashed_timestamp = hashlib.sha256(timestamp.encode()).hexdigest()
 
-    return f"{timestamp}: {hashed_timestamp}. Ping / Pongs: {count}"
+    return f"File: {file_content} \n Env var: {message_env} \n{timestamp}: {hashed_timestamp}. Ping / Pongs: {count}"
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
