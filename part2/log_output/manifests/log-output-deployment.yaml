@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: log-output
+  namespace: appnamespace
+  
   labels:
     app: log-output
 spec:
