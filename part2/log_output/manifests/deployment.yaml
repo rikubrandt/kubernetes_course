@@ -15,7 +15,10 @@ spec:
     spec:
       containers:
       - name: log-output
-        image: macrichard/log-output:4.0
+        image: macrichard/log-output:4.1
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://pingpong:securepassword@postgres-svc:5432/pingpongdb"
         ports:
         - containerPort: 5000
         env:

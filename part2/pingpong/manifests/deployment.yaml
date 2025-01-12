@@ -15,6 +15,9 @@ spec:
     spec:
       containers:
       - name: ping-pong
-        image: macrichard/ping-pong:3.0
+        image: macrichard/ping-pong:4.2
         ports:
         - containerPort: 5000
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://pingpong:securepassword@postgres-svc:5432/pingpongdb"
