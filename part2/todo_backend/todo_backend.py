@@ -1,20 +1,64 @@
+import os
+import psycopg2
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
-todos = []  
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+def get_connection():
+    """Establish a connection to the database."""
+    return psycopg2.connect(DATABASE_URL)
+
+def initialize_db():
+    """Initialize the database with a todos table."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS todos (
+            id SERIAL PRIMARY KEY,
+            todo TEXT NOT NULL
+        );
+    """)
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 @app.route("/todos", methods=["GET"])
 def get_todos():
-    return jsonify(todos)
+    """Fetch all todos from the database."""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT todo FROM todos;")
+        todos = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        conn.close()
+        return jsonify(todos)
+    except Exception as e:
+        print(f"Error fetching todos: {e}")
+        return jsonify([]), 500
 
 @app.route("/todos", methods=["POST"])
 def add_todo():
+    """Add a new todo to the database."""
     data = request.get_json()
     if not data or "todo" not in data:
         return jsonify({"error": "Invalid request"}), 400
+
     todo = data["todo"]
-    todos.append(todo)
-    return jsonify({"message": "Todo added", "todo": todo}), 201
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO todos (todo) VALUES (%s);", (todo,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message": "Todo added", "todo": todo}), 201
+    except Exception as e:
+        print(f"Error adding todo: {e}")
+        return jsonify({"error": "Failed to add todo"}), 500
 
 if __name__ == "__main__":
+    initialize_db()
     app.run(host="0.0.0.0", port=5000)

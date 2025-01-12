@@ -1,10 +1,11 @@
-FROM python:3.10-slim
+FROM python:3.10
 
 WORKDIR /app
 
 COPY todo_backend.py /app/
 
 RUN pip install flask
+RUN pip install psycopg2
 
 EXPOSE 5000
 

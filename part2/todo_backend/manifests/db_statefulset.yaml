@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-db
+  namespace: project
+spec:
+  serviceName: postgres-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-db
+  template:
+    metadata:
+      labels:
+        app: postgres-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: todo-db-credentials
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: todo-db-credentials
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: todo-db-credentials
+              key: POSTGRES_DB
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
