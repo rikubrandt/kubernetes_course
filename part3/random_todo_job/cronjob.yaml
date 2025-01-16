@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: random-todo-job
+  namespace: project
+spec:
+  schedule: "0 * * * *" # every hour
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: random-todo
+            image: macrichard/random-todo-job:1.0
+            env:
+            - name: TODO_BACKEND_URL
+              value: "http://todo-backend-svc:5000"
+          restartPolicy: OnFailure
