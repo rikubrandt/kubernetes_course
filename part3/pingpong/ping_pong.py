@@ -1,20 +1,24 @@
 import os
-import hashlib
-import requests
 import psycopg2
 from flask import Flask, jsonify
-from datetime import datetime
 
 app = Flask(__name__)
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://pingpong:securepassword@postgres-svc:5432/pingpongdb")
+# Retrieve credentials from environment variables
+DATABASE_USER = os.getenv("DATABASE_USER", "defaultuser")
+DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD", "defaultpassword")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "defaultdb")
+DATABASE_HOST = os.getenv("DATABASE_HOST", "localhost")
+
+# Construct the database URL
+DATABASE_URL = f"postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:5432/{DATABASE_NAME}"
 
 def get_connection():
     """Establish and return a connection to the database."""
     return psycopg2.connect(DATABASE_URL)
 
 def initialize_db():
-    """Create the counter table if it doesn't exist."""
+    """Create the counaer table if it doesn't exist."""
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS counter (id SERIAL PRIMARY KEY, value INT DEFAULT 0);")
@@ -25,7 +29,7 @@ def initialize_db():
 
 @app.route("/pingpong", methods=["GET"])
 def handle_pingpong():
-    """Handle POST to /pingpong by incrementing the counter."""
+    """Handle GET to /pingpong by incrementing the counter."""
     try:
         conn = get_connection()
         cursor = conn.cursor()
