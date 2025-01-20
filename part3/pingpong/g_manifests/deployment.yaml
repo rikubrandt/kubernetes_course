@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: ping-pong
-        image: macrichard/ping-pong:4.5
+        image: macrichard/ping-pong:4.6
         imagePullPolicy: Always
         ports:
         - containerPort: 5000

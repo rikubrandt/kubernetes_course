@@ -27,9 +27,17 @@ def initialize_db():
     cursor.close()
     conn.close()
 
+@app.route("/", methods=["GET"])
+def root():
+    return jsonify({"message": "Ping-Pong application is running. Use /pingpong or /count."})
+
+@app.route("/health", methods=["GET"])
+def health_check():
+    """Health check endpoint for GCP Ingress."""
+    return jsonify({"status": "healthy"}), 200
+
 @app.route("/pingpong", methods=["GET"])
 def handle_pingpong():
-    """Handle GET to /pingpong by incrementing the counter."""
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -41,7 +49,7 @@ def handle_pingpong():
     except Exception as e:
         print(f"Error handling /pingpong: {e}")
         return jsonify({"message": "Error incrementing ping/pong counter."})
-
+    
 @app.route("/count", methods=["GET"])
 def get_count():
     """Retrieve the counter value from the database."""
