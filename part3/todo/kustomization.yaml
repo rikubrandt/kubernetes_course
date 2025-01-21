@@ -9,7 +9,7 @@ resources:
   - manifests/pvc.yaml
   - manifests/backend-db-service.yaml
   - manifests/backend-db-statefulset.yaml
-mages:
+images:
   - name: PROJECT/IMAGE
     newName: gcr.io/${PROJECT_ID}/todo-backend
     newTag: latest
