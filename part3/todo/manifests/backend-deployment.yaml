@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: todo-backend
-        image: macrichard/todo-backend:3.1
+        image: gcr.io/YOUR_PROJECT_ID/todo-backend:latest # Placeholder image
         ports:
         - containerPort: 5000
         env:

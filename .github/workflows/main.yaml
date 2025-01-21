@@ -7,7 +7,6 @@ on:
       - ".github/**"      # Trigger when changes are made to the workflow files
 
 env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: dwk-cluster
   GKE_ZONE: europe-north1-b
   
@@ -18,10 +17,6 @@ jobs:
     environment: default
 
     steps:
-
-      - name: Debug Environment #DEBUG
-        run: env
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -30,7 +25,7 @@ jobs:
         with:
           credentials_json: ${{ secrets.GKE_SA_KEY }}
 
-      - name: "Setup docker"
+      - name: Setup Docker Authentication
         run: gcloud --quiet auth configure-docker
 
       - name: Set up Cloud SDK
@@ -41,27 +36,17 @@ jobs:
         with:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_ZONE }}
-          project_id: ${{ env.PROJECT_ID }}
-
-      - name: Build and Push Log Output Image
-        run: |-
-          docker build -t gcr.io/${{ env.PROJECT_ID }}/log-output:latest ./part3/log_output
-          docker push gcr.io/${{ env.PROJECT_ID }}/log-output:latest
-
-      - name: Build and Push PingPong Image
-        run: |-
-          docker build -t gcr.io/${{ env.PROJECT_ID }}/pingpong:latest ./part3/pingpong
-          docker push gcr.io/${{ env.PROJECT_ID }}/pingpong:latest
+          project_id: ${{ secrets.GKE_PROJECT }}
 
       - name: Build and Push Todo Backend Image
         run: |-
-          docker build --platform=linux/amd64 -t gcr.io/${{ env.PROJECT_ID }}/todo-backend:10.0 ./part3/todo/todo_backend
-          docker push gcr.io/${{ env.PROJECT_ID }}/todo-backend:10.0
+          docker build --platform=linux/amd64 -t gcr.io/${{ secrets.GKE_PROJECT }}/todo-backend:${{ github.sha }} ./part3/todo/todo_backend
+          docker push gcr.io/${{ secrets.GKE_PROJECT }}/todo-backend:${{ github.sha }}
 
       - name: Build and Push Todo App Image
         run: |-
-          docker build --platform=linux/amd64 -t gcr.io/${{ env.PROJECT_ID }}/todo-app:10.0 ./part3/todo/todo_app
-          docker push gcr.io/${{ env.PROJECT_ID }}/todo-app:10.0
+          docker build --platform=linux/amd64 -t gcr.io/${{ secrets.GKE_PROJECT }}/todo-app:${{ github.sha }} ./part3/todo/todo_app
+          docker push gcr.io/${{ secrets.GKE_PROJECT }}/todo-app:${{ github.sha }}
 
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2.1.0
@@ -69,8 +54,8 @@ jobs:
       - name: Deploy part3 with Kustomize
         run: |-
           cd ./part3/todo
-          kustomize edit set image gcr.io/${{ env.PROJECT_ID }}/todo-backend:10.0
-          kustomize edit set image gcr.io/${{ env.PROJECT_ID }}/todo-app:10.0
+          kustomize edit set image gcr.io/${{ secrets.GKE_PROJECT }}/todo-backend:${{ github.sha }}
+          kustomize edit set image gcr.io/${{ secrets.GKE_PROJECT }}/todo-app:${{ github.sha }}
           kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/todo-backend -n project
           kubectl rollout status deployment/todo-app -n project
