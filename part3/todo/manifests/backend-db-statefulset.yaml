@@ -14,6 +14,7 @@ spec:
       labels:
         app: postgres-db
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: postgres
         image: postgres:13

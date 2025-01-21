@@ -1,0 +1,56 @@
+jobs:
+  build-publish-deploy:
+    name: Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Authenticate with GCP
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Get GKE credentials
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: '${{ env.GKE_CLUSTER }}'
+        project_id: '${{ env.PROJECT_ID }}'
+        location: '${{ env.GKE_ZONE }}'
+
+    - name: Build Backend Image
+      run: docker build -t "gcr.io/$PROJECT_ID/todo-backend:${{ github.sha }}" ./todo_backend
+
+    - name: Build Frontend Image
+      run: docker build -t "gcr.io/$PROJECT_ID/todo-app:${{ github.sha }}" ./todo_app
+
+    - name: Push Backend Image
+      run: docker push "gcr.io/$PROJECT_ID/todo-backend:${{ github.sha }}"
+
+    - name: Push Frontend Image
+      run: docker push "gcr.io/$PROJECT_ID/todo-app:${{ github.sha }}"
+
+    - name: Create Kubernetes Secret
+      run: |-
+        kubectl create secret generic todo-db-credentials \
+          --namespace project \
+          --from-literal=POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+          --from-literal=POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+          --from-literal=POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Set up Kustomize
+      uses: imranismail/setup-kustomize@v2.1.0
+
+    - name: Deploy to GKE
+      run: |-
+        kustomize edit set image PROJECT/IMAGE=gcr.io/$PROJECT_ID/todo-backend:${{ github.sha }}
+        kustomize edit set image PROJECT/IMAGE=gcr.io/$PROJECT_ID/todo-app:${{ github.sha }}
+        kustomize build . | kubectl apply -f -
+        kubectl rollout status deployment/todo-backend
+        kubectl rollout status deployment/todo-app
+        kubectl get services -o wide

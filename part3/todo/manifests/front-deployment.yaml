@@ -7,6 +7,8 @@ metadata:
     app: todo-app
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: todo-app
@@ -30,5 +32,11 @@ spec:
         env:
         - name: PORT
           value: "5000"
-        - name: "TODO_BACKEND_URL"
+        - name: TODO_BACKEND_URL
           value: "http://todo-backend-svc:5000"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10

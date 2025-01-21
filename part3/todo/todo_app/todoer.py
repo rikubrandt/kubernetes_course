@@ -22,6 +22,9 @@ def home():
 
     return render_template("home.html", todos=todos)
 
+@app.route("/health", methods=["GET"])
+def health():
+    return "OK", 200
 
 @app.route("/todosent", methods=["POST"])
 def add_todo():

@@ -33,6 +33,17 @@ def initialize_db():
     cursor.close()
     conn.close()
 
+@app.route("/health", methods=["GET"])
+def health_check():
+    """Health check endpoint for readiness probes."""
+    try:
+        conn = get_connection()
+        conn.close()
+        return jsonify({"status": "healthy"}), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return jsonify({"status": "unhealthy"}), 500
+
 @app.route("/todos", methods=["GET"])
 def get_todos():
     """Fetch all todos from the database."""

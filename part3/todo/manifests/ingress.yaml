@@ -4,8 +4,10 @@ metadata:
   name: project-ingress
   namespace: project  
   annotations:
+    kubernetes.io/ingress.class: gce
+    networking.gke.io/health-check-path: /
 spec:
-  ingressClassName: traefik
+  ingressClassName: gce
   rules:
   - http:
       paths:
