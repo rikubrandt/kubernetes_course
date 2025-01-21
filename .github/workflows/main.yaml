@@ -15,8 +15,12 @@ jobs:
     name: Build, Publish, and Deploy part3 to GKE
     runs-on: ubuntu-latest
     environment: default
-    
+
     steps:
+
+      - name: Debug Environment #DEBUG
+        run: env
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -24,6 +28,9 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: "Setup docker"
+        run: gcloud --quiet auth configure-docker
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
