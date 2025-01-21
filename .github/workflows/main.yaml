@@ -55,13 +55,18 @@ jobs:
 
       - name: Build and Push Todo Backend Image
         run: |-
-          docker build --platform=linux/amd64 -t gcr.io/$PROJECT_ID/$IMAGE:$BRANCH-$GITHUB_SHA ./todo_backend
-          docker push gcr.io/${{ env.PROJECT_ID }}/todo-backend:latest
+          IMAGE="todo-backend"
+          BRANCH="${{ github.ref_name }}"
+          docker build --platform=linux/amd64 -t gcr.io/${{ env.PROJECT_ID }}/$IMAGE:$BRANCH-${{ github.sha }} ./part3/todo/todo_backend
+          docker push gcr.io/${{ env.PROJECT_ID }}/$IMAGE:$BRANCH-${{ github.sha }}
+
 
       - name: Build and Push Todo App Image
         run: |-
-          docker build --platform=linux/amd64 -t gcr.io/${{ env.PROJECT_ID }}/todo-app:latest ./part3/todo/todo_app
-          docker push gcr.io/${{ env.PROJECT_ID }}/todo-app:latest
+          IMAGE="todo-app"
+          BRANCH="${{ github.ref_name }}"
+          docker build --platform=linux/amd64 -t gcr.io/${{ env.PROJECT_ID }}/$IMAGE:$BRANCH-${{ github.sha }} ./part3/todo/todo_app
+          docker push gcr.io/${{ env.PROJECT_ID }}/$IMAGE:$BRANCH-${{ github.sha }}
 
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2.1.0
