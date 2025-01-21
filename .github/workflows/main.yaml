@@ -1,0 +1,67 @@
+name: Deploy part3 to GKE
+
+on:
+  push:
+    paths:
+      - "part3/**" # Trigger workflow only for changes under part3
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: dwk-cluster
+  GKE_ZONE: europe-north1-b
+
+jobs:
+  build-publish-deploy:
+    name: Build, Publish, and Deploy part3 to GKE
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authenticate with GKE
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Build and Push Log Output Image
+        run: |-
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/log-output:latest ./part3/log_output
+          docker push gcr.io/${{ env.PROJECT_ID }}/log-output:latest
+
+      - name: Build and Push PingPong Image
+        run: |-
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/pingpong:latest ./part3/pingpong
+          docker push gcr.io/${{ env.PROJECT_ID }}/pingpong:latest
+
+      - name: Build and Push Todo Backend Image
+        run: |-
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/todo-backend:latest ./part3/todo/todo_backend
+          docker push gcr.io/${{ env.PROJECT_ID }}/todo-backend:latest
+
+      - name: Build and Push Todo App Image
+        run: |-
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/todo-app:latest ./part3/todo/todo_app
+          docker push gcr.io/${{ env.PROJECT_ID }}/todo-app:latest
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2.1.0
+
+      - name: Deploy part3 with Kustomize
+        run: |-
+          cd ./part3/todo
+          kustomize edit set image gcr.io/${{ env.PROJECT_ID }}/todo-backend:latest
+          kustomize edit set image gcr.io/${{ env.PROJECT_ID }}/todo-app:latest
+          kustomize build . | kubectl apply -f -
+          kubectl rollout status deployment/todo-backend -n project
+          kubectl rollout status deployment/todo-app -n project
