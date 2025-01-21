@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "part3/**" # Trigger workflow only for changes under part3
+      - ".github/**"      # Trigger when changes are made to the workflow files
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
