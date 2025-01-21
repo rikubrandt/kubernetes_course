@@ -64,11 +64,12 @@ jobs:
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2.1.0
 
-      - name: Deploy part3 with Kustomize
+      - name: Deploy
         run: |-
           cd ./part3/todo
-          kustomize edit set image gcr.io/${{ env.PROJECT_ID }}/todo-backend=gcr.io/${{ env.PROJECT_ID }}/todo-backend:${{ github.ref_name }}-${{ github.sha }}
-          kustomize edit set image gcr.io/${{ env.PROJECT_ID }}/todo-app=gcr.io/${{ env.PROJECT_ID }}/todo-app:${{ github.ref_name }}-${{ github.sha }}
+          kustomize edit set image PROJECT/IMAGE=gcr.io/${{ secrets.GKE_PROJECT }}/todo-backend:latest
+          kustomize edit set image PROJECT/IMAGE=gcr.io/${{ secrets.GKE_PROJECT }}/todo-app:latest
           kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/todo-backend -n project
           kubectl rollout status deployment/todo-app -n project
+
