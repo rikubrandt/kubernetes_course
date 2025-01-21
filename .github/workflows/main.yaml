@@ -55,12 +55,12 @@ jobs:
 
       - name: Build and Push Todo Backend Image
         run: |-
-          docker build -t gcr.io/${{ env.PROJECT_ID }}/todo-backend:latest ./part3/todo/todo_backend
+          docker build --platform=linux/amd64 -t gcr.io/$PROJECT_ID/$IMAGE:$BRANCH-$GITHUB_SHA ./todo_backend
           docker push gcr.io/${{ env.PROJECT_ID }}/todo-backend:latest
 
       - name: Build and Push Todo App Image
         run: |-
-          docker build -t gcr.io/${{ env.PROJECT_ID }}/todo-app:latest ./part3/todo/todo_app
+          docker build --platform=linux/amd64 -t gcr.io/${{ env.PROJECT_ID }}/todo-app:latest ./part3/todo/todo_app
           docker push gcr.io/${{ env.PROJECT_ID }}/todo-app:latest
 
       - name: Set up Kustomize
