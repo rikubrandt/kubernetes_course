@@ -9,12 +9,13 @@ env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: dwk-cluster
   GKE_ZONE: europe-north1-b
-
+  
 jobs:
   build-publish-deploy:
     name: Build, Publish, and Deploy part3 to GKE
     runs-on: ubuntu-latest
-
+    environment: default
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
