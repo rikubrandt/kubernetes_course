@@ -7,7 +7,7 @@ spec:
   serviceName: postgres-svc
   replicas: 1
   updateStrategy:
-    type: OnDelete 
+    type: RollingUpdate 
   selector:
     matchLabels:
       app: postgres-db
