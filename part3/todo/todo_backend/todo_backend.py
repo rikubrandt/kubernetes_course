@@ -32,10 +32,14 @@ def get_connection_with_retry(max_retries=10, delay=5):
             if attempt == max_retries:
                 raise
             time.sleep(delay)
+            
+def get_connection():
+    """Establish a connection to the database."""
+    return psycopg2.connect(DATABASE_URL)
 
 def initialize_db():
     """Initialize the database with a todos table."""
-    conn = get_connection()
+    conn = get_connection_with_retry()
     cursor = conn.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS todos (
