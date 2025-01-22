@@ -12,7 +12,7 @@ HOST = "postgres-svc"
 PORT = 5432
 
 DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{HOST}:{PORT}/{POSTGRES_DB}"
-
+print(DATABASE_URL)
 logging.basicConfig(
     level=logging.INFO,  # Adjust log level as needed
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -94,5 +94,6 @@ def add_todo():
         return jsonify({"error": "Failed to add todo"}), 500
 
 if __name__ == "__main__":
+    print(DATABASE_URL)
     initialize_db()
     app.run(host="0.0.0.0", port=5000)
