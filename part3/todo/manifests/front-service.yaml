@@ -4,12 +4,9 @@ metadata:
   name: todo-app-svc
   namespace: project
 spec:
-  replicas: 1
-  updateStrategy:
-    type: OnDelete
   type: ClusterIP
   selector:
     app: todo-app
   ports:
-    - port: 80 # Internal port that is exposed
-      targetPort: 5000 # Port flask listens to
+    - port: 80           # The port clients call
+      targetPort: 5000   # The port your app listens on
