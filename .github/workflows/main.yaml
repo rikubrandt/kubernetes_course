@@ -16,7 +16,10 @@ env:
 
 jobs:
   build-publish-deploy:
+    name: Build, Publish, and Deploy part3 to GKE
     runs-on: ubuntu-latest
+    environment: default
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -40,14 +43,14 @@ jobs:
           project_id: ${{ env.PROJECT_ID }}
 
       - name: Build and Push Todo Backend Image
-        run: |
+        run: |-
           docker build --platform=linux/amd64 \
             --tag "gcr.io/$PROJECT_ID/$IMAGEBACKEND:$BRANCH-$GITHUB_SHA" \
             ./part3/todo/todo_backend
           docker push "gcr.io/$PROJECT_ID/$IMAGEBACKEND:$BRANCH-$GITHUB_SHA"
 
       - name: Build and Push Todo App Image
-        run: |
+        run: |-
           docker build --platform=linux/amd64 \
             --tag "gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA" \
             ./part3/todo/todo_app
@@ -56,7 +59,7 @@ jobs:
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2.1.0
 
-      - name: Set up SOPS
+      - name: Setup SOPS
         uses: nhedger/setup-sops@v2
 
       - name: Decrypt and Apply Secret
@@ -73,19 +76,34 @@ jobs:
           kubectl apply -f part3/todo/manifests/secret.yaml
 
       - name: Deploy
-        run: |
+        run: |-
           cd ./part3/todo
+          # Strip "refs/heads/" to get the actual branch name
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
           kustomize edit set image PROJECT/IMAGEBACK=gcr.io/$PROJECT_ID/$IMAGEBACKEND:$BRANCH-$GITHUB_SHA
           kustomize edit set image PROJECT/IMAGEFRONT=gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA
+
+          # Decide which namespace to use
           if [ "$BRANCH_NAME" = "main" ]; then
             NAMESPACE="default"
+            echo "Deploying main branch to the default namespace."
           else
             NAMESPACE="$BRANCH_NAME"
+            echo "Deploying branch '$BRANCH_NAME' to its own namespace: $NAMESPACE"
+            kubectl create namespace "$NAMESPACE" || true
           fi
+
+          # Switch kubectl context to our chosen namespace
           kubectl config set-context --current --namespace="$NAMESPACE"
+
+          # Ensure Kustomize is also set to the correct namespace
           kustomize edit set namespace "$NAMESPACE"
+
           kustomize build . | kubectl apply -f -
+
+          # Wait for the rollout to succeed
           kubectl rollout status deployment/$IMAGEBACKEND -n project
           kubectl rollout status deployment/$IMAGEFRONT -n project
+
+          # List out services (debug)
           kubectl get services -o wide
