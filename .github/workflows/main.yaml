@@ -72,18 +72,16 @@ jobs:
             kubectl create namespace "$NAMESPACE" || true
           fi
           kubectl config set-context --current --namespace="$NAMESPACE"
-          sops --decrypt part3/todo/manifests/secret.enc.yaml > part3/todo/manifests/secret.yaml
-          kubectl apply -f part3/todo/manifests/secret.yaml
+          sops --decrypt part3/todo/manifests/secrets.enc.yaml > part3/todo/manifests/secrets.yaml
+          kubectl apply -f part3/todo/manifests/secrets.yaml
 
       - name: Deploy
         run: |-
           cd ./part3/todo
-          # Strip "refs/heads/" to get the actual branch name
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
           kustomize edit set image PROJECT/IMAGEBACK=gcr.io/$PROJECT_ID/$IMAGEBACKEND:$BRANCH-$GITHUB_SHA
           kustomize edit set image PROJECT/IMAGEFRONT=gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA
 
-          # Decide which namespace to use
           if [ "$BRANCH_NAME" = "main" ]; then
             NAMESPACE="default"
             echo "Deploying main branch to the default namespace."
@@ -93,17 +91,15 @@ jobs:
             kubectl create namespace "$NAMESPACE" || true
           fi
 
-          # Switch kubectl context to our chosen namespace
           kubectl config set-context --current --namespace="$NAMESPACE"
 
-          # Ensure Kustomize is also set to the correct namespace
           kustomize edit set namespace "$NAMESPACE"
 
           kustomize build . | kubectl apply -f -
 
           # Wait for the rollout to succeed
-          kubectl rollout status deployment/$IMAGEBACKEND -n project
-          kubectl rollout status deployment/$IMAGEFRONT -n project
+          kubectl rollout status deployment/$IMAGEBACKEND -n "$NAMESPACE"
+          kubectl rollout status deployment/$IMAGEFRONT -n "$NAMESPACE"
 
           # List out services (debug)
           kubectl get services -o wide
