@@ -23,7 +23,7 @@ spec:
             claimName: shared-pvc
       containers:
       - name: todo-app
-        image: gcr.io/YOUR_PROJECT_ID/todo-app:latest
+        image: PROJECT/IMAGEFRONT
         ports:
         - containerPort: 5000
         volumeMounts:

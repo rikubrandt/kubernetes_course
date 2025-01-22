@@ -10,9 +10,7 @@ resources:
   - manifests/backend-db-service.yaml
   - manifests/backend-db-statefulset.yaml
 images:
-  - name: PROJECT/IMAGE
-    newName: gcr.io/${PROJECT_ID}/todo-backend
-    newTag: latest
-  - name: PROJECT/IMAGE
-    newName: gcr.io/${PROJECT_ID}/todo-app
-    newTag: latest
+  - name: PROJECT/IMAGEBACK
+    newName: macrichard/todo-backend
+  - name: PROJECT/IMAGEFRONT
+    newName: macrichard/todo-app

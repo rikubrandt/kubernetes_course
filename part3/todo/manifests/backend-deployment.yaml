@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: todo-backend
-        image: gcr.io/YOUR_PROJECT_ID/todo-backend:latest
+        image: PROJECT/IMAGEBACK
         ports:
         - containerPort: 5000
         env:
