@@ -49,7 +49,7 @@ jobs:
 
       - name: Build and Push Todo App Image
         run: |-
-          docker build --platform=linux/amd64 --tag "gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA" ./part3/todo/todo-app
+          docker build --platform=linux/amd64 --tag "gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA" ./part3/todo/todo_app
           docker push "gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA"
 
       - name: Set up Kustomize
