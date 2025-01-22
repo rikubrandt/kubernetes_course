@@ -5,7 +5,13 @@ import logging
 
 app = Flask(__name__)
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_DB = os.getenv("POSTGRES_DB")
+HOST = "postgres-svc"
+PORT = 5432
+
+DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{HOST}:{PORT}/{POSTGRES_DB}"
 
 logging.basicConfig(
     level=logging.INFO,  # Adjust log level as needed

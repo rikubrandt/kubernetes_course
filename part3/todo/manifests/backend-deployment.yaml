@@ -19,13 +19,23 @@ spec:
       - name: todo-backend
         image: PROJECT/IMAGEBACK
         ports:
-        - containerPort: 5000
+          - containerPort: 5000
         env:
-        - name: DATABASE_URL
-          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-svc:5432/$(POSTGRES_DB)"
-        envFrom:
-        - secretRef:
-            name: todo-db-credentials
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: todo-db-credentials
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: todo-db-credentials
+                key: POSTGRES_PASSWORD
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: todo-db-credentials
+                key: POSTGRES_DB
         readinessProbe:
           httpGet:
             path: /health
