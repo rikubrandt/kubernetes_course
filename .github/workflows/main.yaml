@@ -3,8 +3,8 @@ name: Deploy part3 to GKE
 on:
   push:
     paths:
-      - "part3/**"  # Trigger workflow only for changes under part3
-      - ".github/**" # Trigger for changes in the workflow
+      - "part3/**"
+      - ".github/**"
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
@@ -44,16 +44,32 @@ jobs:
 
       - name: Build and Push Todo Backend Image
         run: |-
-          docker build --platform=linux/amd64 --tag "gcr.io/$PROJECT_ID/$IMAGEBACKEND:$BRANCH-$GITHUB_SHA" ./part3/todo/todo_backend
+          docker build --platform=linux/amd64 \
+            --tag "gcr.io/$PROJECT_ID/$IMAGEBACKEND:$BRANCH-$GITHUB_SHA" \
+            ./part3/todo/todo_backend
           docker push "gcr.io/$PROJECT_ID/$IMAGEBACKEND:$BRANCH-$GITHUB_SHA"
 
       - name: Build and Push Todo App Image
         run: |-
-          docker build --platform=linux/amd64 --tag "gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA" ./part3/todo/todo_app
+          docker build --platform=linux/amd64 \
+            --tag "gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA" \
+            ./part3/todo/todo_app
           docker push "gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA"
 
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2.1.0
+
+      - name: Create or Update DB Credentials Secret
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        run: |
+          kubectl create secret generic todo-db-credentials \
+            --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+            --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+            --from-literal=POSTGRES_DB="$POSTGRES_DB" \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy
         run: |-
@@ -63,4 +79,3 @@ jobs:
           kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/$IMAGEBACKEND -n project
           kubectl rollout status deployment/$IMAGEFRONT -n project
-
