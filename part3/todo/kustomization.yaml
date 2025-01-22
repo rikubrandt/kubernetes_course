@@ -1,6 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - manifests/backend-db-statefulset.yaml
   - manifests/backend-deployment.yaml
   - manifests/backend-service.yaml
   - manifests/front-deployment.yaml
@@ -8,7 +9,6 @@ resources:
   - manifests/ingress.yaml
   - manifests/pvc.yaml
   - manifests/backend-db-service.yaml
-  - manifests/backend-db-statefulset.yaml
 images:
   - name: PROJECT/IMAGEBACK
     newName: macrichard/todo-backend

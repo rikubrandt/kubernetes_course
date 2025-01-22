@@ -2,6 +2,7 @@ import os
 import psycopg2
 from flask import Flask, jsonify, request
 import logging
+import time
 
 app = Flask(__name__)
 
@@ -21,9 +22,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def get_connection():
-    """Establish a connection to the database."""
-    return psycopg2.connect(DATABASE_URL)
+def get_connection_with_retry(max_retries=10, delay=5):
+    for attempt in range(1, max_retries + 1):
+        try:
+            conn = psycopg2.connect(DATABASE_URL)
+            return conn
+        except psycopg2.OperationalError as e:
+            print(f"DB not ready (attempt {attempt}/{max_retries}): {e}")
+            if attempt == max_retries:
+                raise
+            time.sleep(delay)
 
 def initialize_db():
     """Initialize the database with a todos table."""
