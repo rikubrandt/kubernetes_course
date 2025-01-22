@@ -73,6 +73,7 @@ jobs:
 
       - name: Deploy
         run: |-
+          cd ./part3/todo
           # Strip "refs/heads/" to get the actual branch name
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
 
