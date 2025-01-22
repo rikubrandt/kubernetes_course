@@ -58,10 +58,8 @@ jobs:
       - name: Deploy
         run: |-
           cd ./part3/todo
-          cd todo-app && kustomize edit set image PROJECT/IMAGEBACK=gcr.io/$PROJECT_ID/$IMAGEBACKEND:$BRANCH-$GITHUB_SHA
-          cd ..
-          cd todo-backend && kustomize edit set image PROJECT/IMAGEFRONT=gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA
-          cd ..
+          kustomize edit set image PROJECT/IMAGEBACK=gcr.io/$PROJECT_ID/$IMAGEBACKEND:$BRANCH-$GITHUB_SHA
+          kustomize edit set image PROJECT/IMAGEFRONT=gcr.io/$PROJECT_ID/$IMAGEFRONT:$BRANCH-$GITHUB_SHA
           kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/$IMAGEBACKEND -n project
           kubectl rollout status deployment/$IMAGEFRONT -n project
