@@ -4,9 +4,11 @@ metadata:
   name: postgres-svc
   namespace: project
 spec:
-  ports:
-  - port: 5432
-    targetPort: 5432
-  clusterIP: None
   selector:
-    app: postgres-db
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+  type: ClusterIP
