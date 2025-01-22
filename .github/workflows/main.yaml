@@ -96,11 +96,11 @@ jobs:
           # Update the container image name in Kustomize
           kustomize edit set image PROJECT/IMAGE="gcr.io/$PROJECT_ID/$IMAGE:${BRANCH_NAME}-$GITHUB_SHA"
 
-          # Apply the manifests (deployment, service, etc.)
           kustomize build . | kubectl apply -f -
 
           # Wait for the rollout to succeed
-          kubectl rollout status deployment "$DEPLOYMENT"
+          kubectl rollout status deployment/$IMAGEBACKEND -n project
+          kubectl rollout status deployment/$IMAGEFRONT -n project
 
           # List out services (debug)
           kubectl get services -o wide
