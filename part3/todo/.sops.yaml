@@ -1,0 +1,2 @@
+creation_rules:
+  - gcp_kms: projects/tough-anagram-448015-h7/locations/global/keyRings/secret_keyring/cryptoKeys/keyring1

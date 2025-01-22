@@ -59,17 +59,18 @@ jobs:
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2.1.0
 
-      - name: Create or Update DB Credentials Secret
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      - name: Install SOPS
         run: |
-          kubectl create secret generic todo-db-credentials \
-            --from-literal=POSTGRES_USER="$POSTGRES_USER" \
-            --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
-            --from-literal=POSTGRES_DB="$POSTGRES_DB" \
-            --dry-run=client -o yaml | kubectl apply -f -
+          sudo apt-get update
+          sudo apt-get install -y sops
+
+      - name: Decrypt Secrets
+        run: |
+          # EXAMPLE: if your encrypted file is "secret.enc.yaml" in part3/todo/manifests
+          sops --decrypt part3/todo/manifests/secret.enc.yaml > part3/todo/manifests/secret.yaml
+
+          # Then apply it to the cluster:
+          kubectl apply -f part3/todo/manifests/secret.yaml
 
       - name: Deploy
         run: |-
