@@ -1,3 +1,4 @@
 .env
 secrets.yaml
 private-key.json
+gcs-key.json

@@ -9,6 +9,7 @@ resources:
   - manifests/ingress.yaml
   - manifests/pvc.yaml
   - manifests/backend-db-service.yaml
+  - manifests/db_backup_cronjob.yaml
 images:
   - name: PROJECT/IMAGEBACK
     newName: macrichard/todo-backend
