@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input { width: 300px; padding: 5px; margin: 5px 0; }
+        button { padding: 5px 10px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 5px 0; }
+        img { max-width: 100%; height: auto; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Create Todos</h1>
+    <form method="POST" action="/todosent">
+        <input type="text" name="todo" maxlength="140" placeholder="Enter a todo (max 140 chars)" required>
+        <button type="submit">Send</button>
+    </form>
+    <h2>List:</h2>
+    <ul>
+        {% for todo in todos %}
+            <li>{{ todo }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Random Hourly Image:</h2>
+    <img src="/image" alt="Random Image">
+</body>
+</html>
