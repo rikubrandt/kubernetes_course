@@ -8,5 +8,5 @@ spec:
   selector:
     app: todo-app
   ports:
-    - port: 80           # The port clients call
-      targetPort: 5000   # The port your app listens on
+    - port: 80          
+      targetPort: 5000

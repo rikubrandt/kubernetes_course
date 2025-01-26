@@ -2,63 +2,44 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: postgres-backup
+  namespace: project
 spec:
-  schedule: "0 0 * * *"  
+  schedule: "0 0 * * *"
   jobTemplate:
     spec:
       template:
         spec:
           restartPolicy: OnFailure
           containers:
-            - name: backup
-              image: google/cloud-sdk:slim
-              command: ["/bin/sh"]
-              args:
-                - -c
-                - |
-                  set -e
-                  echo "Installing PostgreSQL client..."
-                  apt-get update && apt-get install -y postgresql-client
-
-                  echo "Starting DB dump..."
-                  if [ -z "${POSTGRES_USER}" ] || [ -z "${POSTGRES_PASSWORD}" ] || [ -z "${POSTGRES_DB}" ]; then
-                    echo "ERROR: Missing environment variables for PG credentials."
-                    exit 1
-                  fi
-
-                  PGPASSWORD=${POSTGRES_PASSWORD} \
-                    pg_dump -U ${POSTGRES_USER} -h postgres-svc ${POSTGRES_DB} > /tmp/dump.sql
-
-                  echo "Uploading dump to GCS..."
-                  gsutil -o "GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/google/key.json" \
-                         cp /tmp/dump.sql gs://todo-storage-bucket/backup-$(date +%Y-%m-%dT%H:%M:%S).sql
-
-                  echo "Backup completed successfully!"
-              env:
-                - name: POSTGRES_USER
-                  valueFrom:
-                    secretKeyRef:
-                      name: todo-db-credentials
-                      key: POSTGRES_USER
-                - name: POSTGRES_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: todo-db-credentials
-                      key: POSTGRES_PASSWORD
-                - name: POSTGRES_DB
-                  valueFrom:
-                    secretKeyRef:
-                      name: todo-db-credentials
-                      key: POSTGRES_DB
-              volumeMounts:
-                - name: gcp-credentials-volume
-                  mountPath: /var/secrets/google
-                  readOnly: true
+          - name: backup
+            image: postgres:13
+            command: ["/bin/sh"]
+            args:
+              - -c
+              - |
+                echo "Starting DB dump..."
+                PGPASSWORD=${POSTGRES_PASSWORD} pg_dump -U ${POSTGRES_USER} -h postgres-svc ${POSTGRES_DB} > /backup/dump.sql
+                echo "Backup completed successfully!"
+            env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: todo-db-credentials
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-db-credentials
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: todo-db-credentials
+                  key: POSTGRES_DB
+            volumeMounts:
+            - name: backup-volume
+              mountPath: /backup
           volumes:
-            - name: gcp-credentials-volume
-              secret:
-                secretName: gcs-key
-                items:
-                  - key: key.json
-                    path: key.json
-
+          - name: backup-volume
+            persistentVolumeClaim:
+              claimName: backup-pvc

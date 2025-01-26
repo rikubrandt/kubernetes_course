@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: todo-backend
-        image: PROJECT/IMAGEBACK
+        image: macrichard/todo-backend:3.2
         ports:
           - containerPort: 5000
         env:
@@ -47,5 +47,11 @@ spec:
           httpGet:
             path: /health
             port: 5000
-          initialDelaySeconds: 60
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 15
           periodSeconds: 10
