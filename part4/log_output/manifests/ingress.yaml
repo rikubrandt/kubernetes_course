@@ -3,9 +3,8 @@ kind: Ingress
 metadata:
   name: shared-ingress
   namespace: appnamespace
-  annotations:
-    kubernetes.io/ingress.className: traefik
 spec:
+  ingressClassName: nginx
   rules:
   - http:
       paths:
@@ -29,4 +28,4 @@ spec:
           service:
             name: log-output-svc
             port:
-              number: 80
+              number: 5000
