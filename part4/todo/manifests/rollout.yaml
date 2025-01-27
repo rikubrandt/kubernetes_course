@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: todo-app
+  namespace: project
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: todo-app
+  strategy:
+    canary:
+      steps:
+        - setWeight: 50
+        - pause:
+            duration: 30s
+        - analysis:
+            templates:
+              - templateName: cpu-usage-analysis
+        - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: todo-app
+    spec:
+      containers:
+      - name: todo-app
+        image: macrichard/todo-app:5.3
+        ports:
+          - containerPort: 5000
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        env:
+        - name: TODO_BACKEND_URL
+          value: "http://todo-backend-svc:5000"

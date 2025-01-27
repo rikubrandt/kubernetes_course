@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: cpu-usage-analysis
+  namespace: project
+spec:
+  metrics:
+  - name: cpu-usage-check
+    initialDelay: 2m
+    successCondition: result < 5
+    provider:
+      prometheus:
+        address: http://prometheus-prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          # Explanation:
+          # We measure the sum of the CPU usage rate (cores) in the "project" namespace,
+          # over the last 10 minutes (using rate(...) [10m]).
+          # Note that container!="POD" excludes the overhead-only metrics.
+          # Adjust the filter or time window to your environment.
+          scalar(
+            sum(
+              rate(
+                container_cpu_usage_seconds_total{
+                  namespace="project",
+                  container!="POD",
+                  image!=""
+                }[10m]
+              )
+            )
+          )
