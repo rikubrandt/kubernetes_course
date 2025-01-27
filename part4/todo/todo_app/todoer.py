@@ -44,6 +44,27 @@ def add_todo():
         print("Invalid todo or exceeds 140 characters.")
     return redirect(url_for("home"))
 
+@app.route("/markdone", methods=["POST"])
+def mark_todo_done():
+    todo_id = request.form.get("id")
+    if not todo_id:
+        print("No todo id provided.")
+        return redirect(url_for("home"))
+
+    # Perform a PUT to the backend
+    try:
+        response = requests.put(
+            f"{TODO_BACKEND_URL}/todos/{todo_id}",
+            json={"done": True},
+            timeout=2,
+            headers={"Content-Type": "application/json"}
+        )
+        response.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Error marking todo done: {e}")
+
+    return redirect(url_for("home"))
+
 
 @app.route("/image", methods=["GET"])
 def image():

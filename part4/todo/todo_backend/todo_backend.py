@@ -43,12 +43,14 @@ def initialize_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS todos (
             id SERIAL PRIMARY KEY,
-            todo TEXT NOT NULL
+            todo TEXT NOT NULL,
+            done BOOLEAN DEFAULT false
         );
     """)
     conn.commit()
     cursor.close()
     conn.close()
+
 
 @app.route("/health", methods=["GET"])
 def health_check():
@@ -67,14 +69,40 @@ def get_todos():
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT todo FROM todos;")
-        todos = [row[0] for row in cursor.fetchall()]
+        cursor.execute("SELECT id, todo, done FROM todos;")
+        rows = cursor.fetchall()
         cursor.close()
         conn.close()
+        todos = [
+            {"id": row[0], "todo": row[1], "done": row[2]} 
+            for row in rows
+        ]
         return jsonify(todos)
     except Exception as e:
         print(f"Error fetching todos: {e}")
         return jsonify([]), 500
+
+@app.route("/todos/<int:todo_id>", methods=["PUT"])
+def update_todo(todo_id):
+    """Update the 'done' status (and possibly other fields) of a todo."""
+    data = request.get_json()
+    if not data or "done" not in data:
+        return jsonify({"error": "Invalid request"}), 400
+
+    done_value = bool(data["done"])
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE todos SET done = %s WHERE id = %s;", (done_value, todo_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message": "Todo updated", "id": todo_id, "done": done_value}), 200
+    except Exception as e:
+        print(f"Error updating todo: {e}")
+        return jsonify({"error": "Failed to update todo"}), 500
+
 
 @app.route("/todos", methods=["POST"])
 def add_todo():

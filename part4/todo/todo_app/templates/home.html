@@ -19,10 +19,25 @@
         <input type="text" name="todo" maxlength="140" placeholder="Enter a todo (max 140 chars)" required>
         <button type="submit">Send</button>
     </form>
+
     <h2>List:</h2>
     <ul>
-        {% for todo in todos %}
-            <li>{{ todo }}</li>
+
+        {% for item in todos %}
+            <li>
+                {{ item.todo }}
+
+                {% if item.done %}
+                    <em>(Done)</em>
+                {% else %}
+                    <em>(Not done)</em>
+
+                    <form action="/markdone" method="POST" style="display:inline;">
+                        <input type="hidden" name="id" value="{{ item.id }}">
+                        <button type="submit">Mark as done</button>
+                    </form>
+                {% endif %}
+            </li>
         {% endfor %}
     </ul>
 
