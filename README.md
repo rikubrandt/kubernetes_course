@@ -29,3 +29,29 @@
 - Requires more maintenance work (monitoring, scaling, patching).  
 
 
+### Ex 5.05 platform comparison
+
+#### Rancher
+
+- Easy to install and manage multiple Kubernetes clusters.
+- Open-source, with a friendly community.
+- Works well with different clouds (AWS, GCP, Azure) or on-premise systems.
+- Lightweight and flexible, not tied to one provider.
+
+#### OpenShift
+
+- Built by Red Hat, with enterprise support and security features.
+- Offers built-in CI/CD tools for faster development.
+- Includes opinionated defaults, which can simplify some tasks but reduce flexibility.
+
+#### Why Rancher is “better”:
+
+- Simpler to set up.
+- More flexible across different environments.
+- Light and open-source, good for quick deployments.
+
+
+
+
+
+
