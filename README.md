@@ -52,6 +52,47 @@
 
 
 
+# Exercise 5.08: Tools Used vs. Indirect Dependencies
+![alt](ex508.png "Title")
+
+---
+
+## Direct Usage
+
+1. **Helm**  
+   - *Usage:* Installed Prometheus in Part 2 using Helm.  
+
+2. **NGINX**  
+   - *Usage:* Deployed the NGINX Ingress Controller in Part 2.  
+
+3. **Kubernetes**  
+   - *Usage:* The main orchestrator used throughout the course (k3s/k3d locally, GKE in the cloud).  
+
+4. **Argo (Argo CD)**  
+   - *Usage:* Used Argo CD in Part 4 for GitOps.  
+
+5. **GitHub Actions**  
+   - *Usage:* Employed GitHub Actions as the CI/CD pipeline.
+
+6. **Postqresql**  
+   - *Usage:* Database for the project.
+
+---
+
+## Indirect Usage
+
+1. **Flannel**  
+   - *Usage:* Indirectly used as the default network plugin in k3s/k3d.  
+
+2. **containerd**  
+   - *Usage:* The default container runtime under Kubernetes (e.g., GKE).  
+
+3. **etcd**  
+   - *Usage:* Kubernetes uses etcd internally to store cluster state.  
+   - *Details:* Didn’t directly interact with etcd, but it’s essential for Kubernetes.
+
+5. **Traefik**
+    - *Usage:* Default ingress Controller in k3ds
 
 
 
